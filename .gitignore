@@ -1,0 +1,7 @@
+.vscode
+.idea
+
+data/*
+!data/*.py
+
+*log*/
