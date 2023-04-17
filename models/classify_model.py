@@ -1,32 +1,30 @@
 from functools import partial
 
+from einops import rearrange
+from einops.layers.torch import Rearrange
 from torch import nn
 from torchvision import models
 from torchvision.models.swin_transformer import SwinTransformerBlockV2, PatchMergingV2
-from torchvision.ops import Permute
 
 
 class ConvNet(nn.Module):
-    def __init__(self):
+    def __init__(self, num_classes=10):
         super(ConvNet, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(3, 16, 5),  # B * 3 * 28 * 28 -> B * 16 * 24 * 24
-            nn.ReLU(),
             nn.MaxPool2d(2, 2),  # -> B * 16 * 12 * 12
             nn.Conv2d(16, 24, 3),  # -> B * 24 * 10 * 10
-            nn.ReLU()
         )
 
         self.fc = nn.Sequential(
+            Rearrange('b c h w -> b (c h w)'),  # B * 24 * 10 * 10 -> B * (24 * 10 * 10)
             nn.Linear(24 * 10 * 10, 480),  # B * 2400 -> B * 480
             nn.ReLU(),
-            nn.Linear(480, 10)
+            nn.Linear(480, num_classes)
         )
 
     def forward(self, x):
-        input_size = x.size(0)
         x = self.conv(x)
-        x = x.view(input_size, -1)
 
         return self.fc(x)
 
@@ -43,7 +41,7 @@ class TransNet(nn.Module):
         #
         # self.patch_embed = nn.Sequential(
         #     nn.Conv2d(3, self.embed_dim, kernel_size=(4, 4), stride=(4, 4)),  # 3 * 28 * 28 -> 96 * 7 * 7
-        #     Permute([0, 2, 3, 1]),  # B C H W -> B H W C
+        #     Rearrange('b c h w -> b h w c'),
         #     norm_layer(self.embed_dim)  # 归一化
         # )
         #
