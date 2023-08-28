@@ -1,0 +1,25 @@
+name: ML
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+  - nvidia
+  - huggingface
+dependencies:
+  - python>=3.8,<3.10
+  - pytorch::pytorch
+  - pytorch-cuda
+  - pytorch::torchvision
+  - tensorboard
+  - torchinfo
+  - jupyter
+  - matplotlib
+  - einops
+  - ffmpeg
+  - opencv
+#  - librosa>=0.10
+  - lightning
+#  - torch-fidelity
+  - transformers
+  - datasets
+  - pysoundfile
