@@ -44,7 +44,8 @@ class ClassifyLitModule(LightningModule):
         # self.model = models.swin_v2_t(num_classes=num_classes)
         # self.model = ConvNet(num_classes=num_classes)
         self.backbone = AutoModel.from_pretrained('facebook/vit-mae-base')
-        self.backbone.trainable = False
+        for param in self.backbone.parameters():
+            param.requires_grad = False
         self.pool = partial(torch.mean, dim=1)
         self.fc = nn.Linear(768, num_classes)
 
@@ -59,7 +60,7 @@ class ClassifyLitModule(LightningModule):
         return x
 
     def configure_optimizers(self):
-        return Adam(self.parameters(), lr=self.hparams.lr)
+        return Adam(filter(lambda p: p.requires_grad, self.parameters()), lr=self.hparams.lr)
 
     def training_step(self, batch, batch_idx):
         imgs, labels = batch
